@@ -16,7 +16,7 @@ import kr.co.hoon.service.BoardService;
 
 @Controller
 public class BoardController {
-	// github에서 수정한 
+	// github에서 수정한 내용
 	@Autowired
 	private BoardService boardService;
 
