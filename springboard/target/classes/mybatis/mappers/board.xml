@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board">
+	<insert id="write" parameterType="Board">
+		insert into springboard(bno, title, content, ip, email, nickname)
+		values(BOARDSEQ.NEXTVAL, #{title}, #{content}, #{ip}, #{email}, #{nickname})
+	</insert>
+	
+	<!-- 공통으로 사용할 SQL -->
+	<sql id="search">
+		<if test="searchType!=null">
+			<if test="searchType == 't'.toString()">
+				where title like '%' || #{keyword} || '%'
+			</if>
+			<if test="searchType == 'c'.toString()">
+				where content like '%' || #{keyword} || '%'
+			</if>
+			<if test="searchType == 'tc'.toString()">
+				where content like '%' || #{keyword} || '%' or title like '%' || #{keyword} || '%'
+			</if>
+		</if> 
+	</sql>
+	
+	<select id="list" resultType="Board" parameterType="SearchCriteria">
+		select bno, title, nickname, regdate, readcnt, email, ip
+		from (select rownum rnum, bno, title, content, email, regdate, readcnt, ip, nickname
+				from (select * from springboard
+					<include refid="search"/>
+					order by regdate desc))
+		where rnum &gt;= #{pageStart} and rnum &lt;= #{pageStart}+#{perPageNum}-1
+	</select>
+	<update id="readcnt" parameterType="java.lang.Integer">
+		update springboard
+		set readcnt = readcnt + 1 
+		where bno=#{bno}
+	</update>
+	<select id="detail" resultType="Board" parameterType="java.lang.Integer">
+		select bno, title, content, nickname, regdate, readcnt, email, ip
+		from springboard
+		where bno=#{bno}
+	</select>
+	<update id="update" parameterType="Board">
+		update springboard
+		set title=#{title}, content=#{content}, regdate=sysdate, ip=#{ip}
+		where bno=#{bno}
+	</update>
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from springboard
+		where bno=#{bno} 
+	</delete>
+	<select id="totalCount" resultType="java.lang.Integer" parameterType="SearchCriteria">
+		select count(*) from springboard
+		<include refid="search"/>
+	</select>
+	
+	<select id="replyCount" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+		select count(*)
+		from springreply
+		where bno=#{bno}
+	</select>
+</mapper>

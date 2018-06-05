@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="user">
+	<!-- email 하나 가져오는 sql -->
+	<select id="emailcheck" parameterType="java.lang.String" resultType="java.lang.String">
+		select email from springuser where email = #{email}
+	</select>
+	<!-- 회원가입 sql -->
+	<insert id="register" parameterType="User">
+		insert into springuser(email, pw, nickname, image) values(#{email}, #{pw}, #{nickname}, #{image})
+	</insert>
+	<!-- email을 가지고 전체 정보 가져오는 sql -->
+	<select id="login" parameterType="java.lang.String" resultType="User">
+		select email, pw, nickname, image from springuser where email = #{email}
+	</select>
+</mapper>

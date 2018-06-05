@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd">
+	
+	<!-- spring mvc project에서 MVC관련 어노테이션 사용할수 있게 해주는 설정 -->
+	<annotation-driven />
+
+	<!-- 정적인 파일들을 캐싱해줄 수 있는 디렉토리와 URL설정 -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Controller에서 forwarding 할 때 사용하는 뷰 이름과 조합해서
+		실제 출력될 파일의 위치와 종류(JSTL view)를 결정하는 설정 -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	<!-- 어노테이션이 적용된 클래스의 객체를 자동으로 만들어주는 패키지 설정
+		스프링 MVC 프로젝트에서 모든 클래스는 이 패키지 안에서 생성
+		domain 클래스를 제외하고는 전부 어노테이션을 이용해서 생성
+		이 패키지에 포함된 클래스들은 new 하지 않고 bean으로 생성하지도 않음 -->
+	<context:component-scan base-package="kr.co.hoon" />
+	
+	<!-- Controller가 처리하지 못하는 요청은 WAS가 처리하도록 해주는 설정, 필수 -->
+	<default-servlet-handler/>
+	
+	<!-- 파일 업로드를 위한 MultipartResolver bean -->
+	<beans:bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
+		<beans:property value="10485760" name="maxUploadSize" />
+	</beans:bean>
+	
+	<!-- 인터셉터 -->
+	<interceptors>
+		<!-- 권한 인터셉터 -->
+		<interceptor>
+			<mapping path="/board/write" />
+			<mapping path="/board/detail" />
+			<mapping path="/board/delete" />
+			<mapping path="/board/update" />
+			<beans:ref bean="authenticationInterceptor" />
+		</interceptor>
+	</interceptors>
+	
+	<!-- AOP -->
+	<aop:aspectj-autoproxy />
+	
+	<!-- 이메일 bean -->
+	<beans:bean class="org.springframework.mail.javamail.JavaMailSenderImpl" id="mailSender">
+		<beans:property value="smtp.naver.com" name="host" />
+		<beans:property value="587" name="port" />
+		<beans:property name="username" value="piamenia" />
+		<beans:property name="password" value="rlawogns23ZZ!"/>
+		<beans:property value="utf-8" name="defaultEncoding" />
+		<beans:property name="javaMailProperties">
+			<beans:props>
+			<beans:prop key="mail.transport.protocol">smtp</beans:prop>
+			<beans:prop key="mail.smtp.auth">true</beans:prop>
+			<beans:prop key="mail.smtp.starttls.enable">true</beans:prop>
+			<beans:prop key="mail.debug">true</beans:prop>
+			</beans:props>
+		</beans:property>
+	</beans:bean>
+		
+</beans:beans>
